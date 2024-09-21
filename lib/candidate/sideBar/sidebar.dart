@@ -124,24 +124,15 @@ class _SideBarState extends State<SideBar> {
                   Image.asset(
                     'assets/images/delmonte.png',
                     width: 100,
-                    height: 50,
+                    height: 100,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 20),
+                  // const SizedBox(height: 20),
                   Text(
                     widget.userName,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.userEmail,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
                     ),
                     textAlign: TextAlign.center,
                   ),

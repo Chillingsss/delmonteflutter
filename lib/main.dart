@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF014D30), // Dark green background
+      backgroundColor: const Color(0xFF014D30),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -175,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
               // Del Monte logo
               Center(
                 child: Image.asset(
-                  'assets/images/delmonte.png', // Path to your Del Monte logo
+                  'assets/images/delmonte.png',
                   height: 100,
                 ),
               ),
@@ -196,7 +196,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 30),
-              // Username input field
+              
               TextField(
                 controller: _usernameController,
                 style: const TextStyle(color: Colors.white),

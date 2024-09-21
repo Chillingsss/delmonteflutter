@@ -140,7 +140,7 @@ class JobDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailItem(BuildContext context, String title, String content,
+  Widget _buildDetailItem(BuildContext context, String title, dynamic content,
       {bool isList = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -155,21 +155,29 @@ class JobDetails extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 5),
-          if (isList)
-            ...content.split('|').map((item) => Padding(
-                  padding: const EdgeInsets.only(left: 16, top: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('• ', style: TextStyle(fontSize: 16)),
-                      Expanded(
-                          child: Text(item.trim(),
-                              style: Theme.of(context).textTheme.bodyText2)),
-                    ],
-                  ),
-                ))
+          if (content != null)
+            if (isList)
+              ...content.toString().split('|').map((item) => Padding(
+                    padding: const EdgeInsets.only(left: 16, top: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('• ', style: TextStyle(fontSize: 16)),
+                        Expanded(
+                            child: Text(item.trim(),
+                                style: Theme.of(context).textTheme.bodyText2)),
+                      ],
+                    ),
+                  ))
+            else
+              Text(content.toString(),
+                  style: Theme.of(context).textTheme.bodyText2)
           else
-            Text(content, style: Theme.of(context).textTheme.bodyText2),
+            Text('Not specified',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText2
+                    ?.copyWith(fontStyle: FontStyle.italic)),
         ],
       ),
     );

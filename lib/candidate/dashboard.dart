@@ -1,11 +1,10 @@
 import 'package:delmonteflutter/candidate/jobdetails.dart';
 import 'package:delmonteflutter/main.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // For HTTP requests
-import 'dart:convert'; // For JSON decoding
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:delmonteflutter/candidate/sideBar/sidebar.dart'; // Import your sidebar
-// Import the JobDetails page
+import 'package:delmonteflutter/candidate/sideBar/sidebar.dart';
 
 class CandidateDashboard extends StatefulWidget {
   const CandidateDashboard({Key? key}) : super(key: key);
@@ -17,13 +16,13 @@ class CandidateDashboard extends StatefulWidget {
 class _CandidateDashboardState extends State<CandidateDashboard> {
   String userName = '';
   String userEmail = '';
-  List<dynamic> jobList = []; // To store the list of jobs
+  List<dynamic> jobList = [];
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
-    _fetchJobs(); // Fetch jobs on init
+    _fetchJobs();
   }
 
   Future<void> _loadUserData() async {
@@ -44,15 +43,14 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
   }
 
   Future<void> _fetchJobs() async {
-    final String url =
-        "http://localhost/php-delmonte/api/users.php"; // Your URL
+    final String url = "http://localhost/php-delmonte/api/users.php";
 
     Map<String, String> headers = {
       "Content-Type": "application/x-www-form-urlencoded",
     };
 
     Map<String, dynamic> body = {
-      'operation': 'getActiveJob', // No cand_id needed
+      'operation': 'getActiveJob',
     };
 
     final response =
@@ -60,10 +58,9 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
 
     if (response.statusCode == 200) {
       setState(() {
-        jobList = json.decode(response.body); // Decode the JSON response
+        jobList = json.decode(response.body);
       });
     } else {
-      // Handle errors if needed
       print('Failed to load jobs');
     }
   }
@@ -72,7 +69,7 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
 
-    return !isLoggedIn; // Prevent back navigation if logged in
+    return !isLoggedIn;
   }
 
   @override
@@ -80,69 +77,71 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        appBar: AppBar(
-          leading: Builder(
-            builder: (context) => MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () {
-                  Scaffold.of(context).openDrawer();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.asset(
-                    'assets/images/delmonte.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          title: const Text('Candidate Dashboard'),
-        ),
         drawer: Drawer(
           child: SideBar(
             userName: userName,
             userEmail: userEmail,
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome, $userName!',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                userEmail,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Active Jobs:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: jobList.length,
-                  itemBuilder: (context, index) {
-                    return _buildApplicationItem(jobList[index]);
-                  },
+        body: Builder(
+          builder: (context) => Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Custom header without AppBar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          Scaffold.of(context).openDrawer(); // Open sidebar
+                        },
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          child: Image.asset(
+                            'assets/images/delmonte.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          "Explore Exciting Careers at Del Monte",
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    CircleAvatar(
+                      child: Text(
+                        userName.isNotEmpty ? userName[0].toUpperCase() : '',
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                const Text(
+                  'Active Jobs:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: jobList.length,
+                    itemBuilder: (context, index) {
+                      return _buildApplicationItem(jobList[index]);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // TODO: Implement new application functionality
-            print('New application button pressed');
-          },
-          child: const Icon(Icons.add),
         ),
       ),
     );
@@ -150,10 +149,12 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
 
   Widget _buildApplicationItem(Map<String, dynamic> job) {
     return Card(
-      child: ListTile(
-        title: Text(job['jobM_title']),
-        subtitle: Text('Posted on: ${job['jobM_createdAt']}'),
-        trailing: const Icon(Icons.arrow_forward_ios),
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
         onTap: () {
           Navigator.push(
             context,
@@ -162,6 +163,67 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
             ),
           );
         },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0A6338),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
+                ),
+              ),
+              child: Text(
+                job['jobM_title'],
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today,
+                          size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Posted on: ${job['jobM_createdAt']}',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.people, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Total Applied: ${job['Total_Applied']}',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16, bottom: 16),
+                child: Icon(Icons.arrow_forward_ios, color: Colors.grey[400]),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

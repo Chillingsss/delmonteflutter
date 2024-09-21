@@ -1,7 +1,7 @@
 import 'package:delmonteflutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:delmonteflutter/candidate/sideBar/sidebar.dart'; // Import your sidebar
 
 class CandidateDashboard extends StatefulWidget {
   const CandidateDashboard({Key? key}) : super(key: key);
@@ -55,42 +55,50 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-              'assets/images/delmonte.png', // Path to your logo image
-              fit: BoxFit.contain,
+          leading: Builder(
+            builder: (context) => GestureDetector(
+              onTap: () {
+                // Open the drawer when the Del Monte logo is clicked
+                Scaffold.of(context).openDrawer();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  'assets/images/delmonte.png', // Path to your logo image
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
           ),
           title: const Text('Candidate Dashboard'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.clear();
-
-                // Navigate to LoginPage
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
-              },
-            ),
-          ],
+          
+        ),
+        // Add the Drawer for the sidebar
+        drawer: Drawer(
+          child: SideBar(
+            userName: userName,
+            userEmail: userEmail,
+          ), // Pass user data to the sidebar
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Welcome, $userName!',
-                  style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                'Welcome, $userName!',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               const SizedBox(height: 8),
-              Text(userEmail, style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                userEmail,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const SizedBox(height: 24),
-              const Text('Your Applications:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                'Your Applications:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView(
@@ -121,8 +129,7 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
       child: ListTile(
         title: Text(jobTitle),
         subtitle: Text('Status: $status'),
-        trailing:
-            const Icon(Icons.arrow_forward_ios), // Keep or remove if necessary
+        trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
           // TODO: Navigate to application details
           print('Tapped on $jobTitle application');

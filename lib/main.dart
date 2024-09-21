@@ -36,6 +36,43 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  String userName = '';
+  String userEmail = '';
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => CandidateDashboard()),
+      );
+    }
+
+    setState(() {
+      userName = prefs.getString('user_name') ?? 'Candidate';
+      userEmail = prefs.getString('user_email') ?? 'No email';
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<bool> _onWillPop() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+
+    // If the user is logged in, prevent going back
+    if (isLoggedIn) {
+      return false; // Prevent the back navigation
+    }
+
+    return true; // Allow back navigation if not logged in
+  }
 
   Future<void> _login() async {
     String url = "http://localhost/php-delmonte/api/users.php";
@@ -52,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
       }),
     };
 
-    if (_formKey.currentState!.validate()) {
+    try {
       final response = await http.post(
         Uri.parse(url),
         headers: headers,
@@ -71,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
 
           // Navigate to the appropriate screen based on user type
           if (userData.containsKey('cand_id')) {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => CandidateDashboard(),
@@ -90,10 +127,13 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else {
         // Error in API call
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error connecting to server')),
-        );
+        throw Exception('Server returned ${response.statusCode}');
       }
+    } catch (e) {
+      print('Error during login: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error connecting to server')),
+      );
     }
   }
 
@@ -114,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
       await prefs.setString('user_email', userData['sup_email']);
     } else if (userData.containsKey('cand_id')) {
       await prefs.setString('user_type', 'applicant');
-      await prefs.setString('user_id', userData['cand_id'].toString());
+      await prefs.setInt('cand_id', userData['cand_id']);
       await prefs.setString('user_name',
           '${userData['cand_firstname']} ${userData['cand_lastname']}');
       await prefs.setString('user_email', userData['cand_email']);
@@ -124,50 +164,119 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+      backgroundColor: const Color(0xFF014D30), // Dark green background
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Username'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your username';
-                  }
-                  return null;
-                },
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 50),
+              // Del Monte logo
+              Center(
+                child: Image.asset(
+                  'assets/images/delmonte.png', // Path to your Del Monte logo
+                  height: 100,
+                ),
               ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
+              const SizedBox(height: 30),
+              const Text(
+                'Welcome to',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 20,
+                ),
+              ),
+              const Text(
+                'DELMONTE',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 30),
+              // Username input field
+              TextField(
+                controller: _usernameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: const Color(0xFF013720), // Lighter green color
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _login,
-                child: const Text('Login'),
+              // Password input field
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: const Color(0xFF013720),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 30),
+              // Login button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    _login();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF008C44), // Green button
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Register and Forgot Password options
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Don't have an account?",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // Navigate to register page
+                    },
+                    child: const Text(
+                      'Create account here',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
               TextButton(
                 onPressed: () {
-                  // TODO: Navigate to sign up page
-                  print('Navigate to sign up page');
+                  // Navigate to forgot password page
                 },
-                child: const Text("Don't have an account? Sign up"),
+                child: const Text(
+                  'Forgot Password?',
+                  style: TextStyle(color: Colors.white70),
+                ),
               ),
             ],
           ),

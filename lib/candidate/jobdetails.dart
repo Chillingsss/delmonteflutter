@@ -1,3 +1,5 @@
+import 'package:delmonteflutter/candidate/notficationService.dart';
+import 'package:delmonteflutter/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -13,8 +15,14 @@ class JobDetails extends StatelessWidget {
     final userId = prefs.getInt('cand_id');
 
     if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You need to log in to apply for jobs.')),
+      NotificationService.showNotification(
+        context,
+        'You need to log in to apply for jobs.',
+        isSuccess: false,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
       return;
     }
@@ -36,21 +44,21 @@ class JobDetails extends StatelessWidget {
     if (response.statusCode == 200) {
       final result = json.decode(response.body);
       if (result['success'] != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['success'])),
-        );
+        NotificationService.showNotification(context, result['success'],
+            isSuccess: true);
       } else if (result['status'] == 'duplicate') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'])),
-        );
+        NotificationService.showNotification(context, result['message'],
+            isSuccess: false);
       } else if (result['error'] != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(result['error'])),
         );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to apply for the job.')),
+      NotificationService.showNotification(
+        context,
+        'Failed to apply for the job.',
+        isSuccess: false,
       );
     }
   }

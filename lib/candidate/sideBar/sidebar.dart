@@ -23,19 +23,15 @@ class _SideBarState extends State<SideBar> {
   @override
   void initState() {
     super.initState();
-    fetchAppliedJobs(); // Fetch jobs when the sidebar is initialized
+    fetchAppliedJobs();
   }
 
-  // Fetch applied jobs from backend using cand_id from SharedPreferences
   Future<void> fetchAppliedJobs() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final candId = prefs.getInt('cand_id');
 
-      print('Candidate ID from SharedPreferences: $candId');
-
       if (candId == null) {
-        print('Error: cand_id is null');
         setState(() {
           hasError = true;
           isLoading = false;
@@ -49,20 +45,17 @@ class _SideBarState extends State<SideBar> {
         "Content-Type": "application/x-www-form-urlencoded",
       };
 
-      // Define the body with the operation and cand_id
       Map<String, dynamic> body = {
         'operation': 'getAppliedJobs',
         'cand_id': candId.toString(),
       };
 
-      // Send POST request
       final response = await http.post(
         Uri.parse(url),
         headers: headers,
         body: body,
       );
 
-      // Check if the response is successful
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
@@ -79,27 +72,24 @@ class _SideBarState extends State<SideBar> {
             isLoading = false;
           });
         } else if (data is Map<String, dynamic> && data.containsKey('error')) {
-          print('Error from server: ${data['error']}');
           setState(() {
             hasError = true;
             isLoading = false;
           });
         } else {
-          print('Unexpected response format: $data');
           setState(() {
             hasError = true;
             isLoading = false;
           });
         }
       } else {
-        print('HTTP Error: ${response.statusCode}');
         setState(() {
           hasError = true;
           isLoading = false;
         });
       }
     } catch (e) {
-      print('Exception: $e');
+      // print('Exception: $e');
       setState(() {
         hasError = true;
         isLoading = false;
@@ -115,8 +105,8 @@ class _SideBarState extends State<SideBar> {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(16),
-            color: Color(0xFF0A6338),
+            padding: const EdgeInsets.all(16),
+            color: const Color(0xFF0A6338),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -125,7 +115,7 @@ class _SideBarState extends State<SideBar> {
                     Container(
                       width: 60,
                       height: 60,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
                           image: AssetImage('assets/images/delmonte.png'),
@@ -134,8 +124,8 @@ class _SideBarState extends State<SideBar> {
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Text(
+                    const SizedBox(width: 8),
+                    const Text(
                       "Del Monte",
                       style: TextStyle(
                         color: Colors.white,
@@ -145,10 +135,10 @@ class _SideBarState extends State<SideBar> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   widget.userName,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                     color: Colors.white,
@@ -161,14 +151,15 @@ class _SideBarState extends State<SideBar> {
             child: Column(
               children: [
                 ListTile(
-                  leading: Icon(Icons.dashboard, color: Color(0xFF0A6338)),
-                  title: Text('Dashboard'),
+                  leading:
+                      const Icon(Icons.dashboard, color: Color(0xFF0A6338)),
+                  title: const Text('Dashboard'),
                   onTap: () {
                     // Navigate to dashboard
                   },
                 ),
-                Divider(),
-                Padding(
+                const Divider(),
+                const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     'Applied Jobs',
@@ -181,29 +172,31 @@ class _SideBarState extends State<SideBar> {
                 ),
                 Expanded(
                   child: isLoading
-                      ? Center(child: CircularProgressIndicator())
+                      ? const Center(child: CircularProgressIndicator())
                       : hasError
-                          ? Center(child: Text('Error loading jobs'))
+                          ? const Center(child: Text('Error loading jobs'))
                           : appliedJobs.isEmpty
-                              ? Center(child: Text('No applied jobs found'))
+                              ? const Center(
+                                  child: Text('No applied jobs found'))
                               : ListView.builder(
                                   itemCount: appliedJobs.length,
                                   itemBuilder: (context, index) {
                                     return Card(
-                                      margin: EdgeInsets.symmetric(
+                                      margin: const EdgeInsets.symmetric(
                                         horizontal: 16,
                                         vertical: 8,
                                       ),
                                       child: ListTile(
                                         title: Text(
                                           appliedJobs[index],
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        leading: Icon(Icons.work,
+                                        leading: const Icon(Icons.work,
                                             color: Color(0xFF0A6338)),
-                                        trailing: Icon(Icons.chevron_right),
+                                        trailing:
+                                            const Icon(Icons.chevron_right),
                                         onTap: () {
                                           // Navigate to job details
                                         },
@@ -215,23 +208,23 @@ class _SideBarState extends State<SideBar> {
               ],
             ),
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(Icons.settings, color: Color(0xFF0A6338)),
-            title: Text('Settings'),
+            leading: const Icon(Icons.settings, color: Color(0xFF0A6338)),
+            title: const Text('Settings'),
             onTap: () {
               // Navigate to settings page
             },
           ),
           ListTile(
-            leading: Icon(Icons.logout, color: Colors.red),
-            title: Text('Logout'),
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Logout'),
             onTap: () async {
               final prefs = await SharedPreferences.getInstance();
               await prefs.clear();
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
+                MaterialPageRoute(builder: (context) => const LandingPage()),
               );
             },
           ),

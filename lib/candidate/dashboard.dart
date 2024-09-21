@@ -32,7 +32,7 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
     if (!isLoggedIn) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => LandingPage()),
       );
     }
 

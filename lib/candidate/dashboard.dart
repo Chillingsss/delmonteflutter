@@ -1,7 +1,11 @@
+import 'package:delmonteflutter/candidate/jobdetails.dart';
 import 'package:delmonteflutter/main.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // For HTTP requests
+import 'dart:convert'; // For JSON decoding
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:delmonteflutter/candidate/sideBar/sidebar.dart'; // Import your sidebar
+// Import the JobDetails page
 
 class CandidateDashboard extends StatefulWidget {
   const CandidateDashboard({Key? key}) : super(key: key);
@@ -13,11 +17,13 @@ class CandidateDashboard extends StatefulWidget {
 class _CandidateDashboardState extends State<CandidateDashboard> {
   String userName = '';
   String userEmail = '';
+  List<dynamic> jobList = []; // To store the list of jobs
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _fetchJobs(); // Fetch jobs on init
   }
 
   Future<void> _loadUserData() async {
@@ -37,16 +43,36 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
     });
   }
 
+  Future<void> _fetchJobs() async {
+    final String url =
+        "http://localhost/php-delmonte/api/users.php"; // Your URL
+
+    Map<String, String> headers = {
+      "Content-Type": "application/x-www-form-urlencoded",
+    };
+
+    Map<String, dynamic> body = {
+      'operation': 'getActiveJob', // No cand_id needed
+    };
+
+    final response =
+        await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        jobList = json.decode(response.body); // Decode the JSON response
+      });
+    } else {
+      // Handle errors if needed
+      print('Failed to load jobs');
+    }
+  }
+
   Future<bool> _onWillPop() async {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
 
-    // If the user is logged in, prevent going back
-    if (isLoggedIn) {
-      return false; // Prevent the back navigation
-    }
-
-    return true; // Allow back navigation if not logged in
+    return !isLoggedIn; // Prevent back navigation if logged in
   }
 
   @override
@@ -56,29 +82,29 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
       child: Scaffold(
         appBar: AppBar(
           leading: Builder(
-            builder: (context) => GestureDetector(
-              onTap: () {
-                // Open the drawer when the Del Monte logo is clicked
-                Scaffold.of(context).openDrawer();
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  'assets/images/delmonte.png', // Path to your logo image
-                  fit: BoxFit.contain,
+            builder: (context) => MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    'assets/images/delmonte.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
           ),
           title: const Text('Candidate Dashboard'),
-          
         ),
-        // Add the Drawer for the sidebar
         drawer: Drawer(
           child: SideBar(
             userName: userName,
             userEmail: userEmail,
-          ), // Pass user data to the sidebar
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -96,18 +122,16 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Your Applications:',
+                'Active Jobs:',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: ListView(
-                  children: [
-                    // TODO: Replace with actual application data
-                    _buildApplicationItem('Software Developer', 'Applied'),
-                    _buildApplicationItem('Data Analyst', 'Under Review'),
-                    _buildApplicationItem('UX Designer', 'Rejected'),
-                  ],
+                child: ListView.builder(
+                  itemCount: jobList.length,
+                  itemBuilder: (context, index) {
+                    return _buildApplicationItem(jobList[index]);
+                  },
                 ),
               ),
             ],
@@ -124,15 +148,19 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
     );
   }
 
-  Widget _buildApplicationItem(String jobTitle, String status) {
+  Widget _buildApplicationItem(Map<String, dynamic> job) {
     return Card(
       child: ListTile(
-        title: Text(jobTitle),
-        subtitle: Text('Status: $status'),
+        title: Text(job['jobM_title']),
+        subtitle: Text('Posted on: ${job['jobM_createdAt']}'),
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
-          // TODO: Navigate to application details
-          print('Tapped on $jobTitle application');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => JobDetails(jobDetails: job),
+            ),
+          );
         },
       ),
     );

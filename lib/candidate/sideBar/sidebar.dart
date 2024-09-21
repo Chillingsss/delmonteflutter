@@ -109,86 +109,131 @@ class _SideBarState extends State<SideBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+    return Container(
+      width: 280, // Adjust the width as needed
+      color: Colors.white,
       child: Column(
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Color(0xFF0A6338),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/delmonte.png',
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.contain,
-                  ),
-                  // const SizedBox(height: 20),
-                  Text(
-                    widget.userName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
+          Container(
+            padding: EdgeInsets.all(16),
+            color: Color(0xFF0A6338),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: AssetImage('assets/images/delmonte.png'),
+                          fit: BoxFit.cover,
+                        ),
+                        color: Colors.white,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
+                    SizedBox(width: 8),
+                    Text(
+                      "Del Monte",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Text(
+                  widget.userName,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.white,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-
-          // Centered Applied Jobs Section
           Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : hasError
-                    ? const Center(child: Text('Error loading jobs'))
-                    : appliedJobs.isEmpty
-                        ? const Center(child: Text('No applied jobs found'))
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: appliedJobs.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(appliedJobs[index]),
-                                leading: Icon(Icons.work),
-                              );
-                            },
-                          ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.dashboard, color: Color(0xFF0A6338)),
+                  title: Text('Dashboard'),
+                  onTap: () {
+                    // Navigate to dashboard
+                  },
+                ),
+                Divider(),
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Applied Jobs',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0A6338),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : hasError
+                          ? Center(child: Text('Error loading jobs'))
+                          : appliedJobs.isEmpty
+                              ? Center(child: Text('No applied jobs found'))
+                              : ListView.builder(
+                                  itemCount: appliedJobs.length,
+                                  itemBuilder: (context, index) {
+                                    return Card(
+                                      margin: EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      child: ListTile(
+                                        title: Text(
+                                          appliedJobs[index],
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        leading: Icon(Icons.work,
+                                            color: Color(0xFF0A6338)),
+                                        trailing: Icon(Icons.chevron_right),
+                                        onTap: () {
+                                          // Navigate to job details
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ),
+                ),
+              ],
+            ),
           ),
-
-          Spacer(),
-
-          // Settings and Logout at the bottom
-          Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
-                onTap: () {
-                  // Navigate to settings page
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
-                onTap: () async {
-                  // Handle logout functionality
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.clear();
-
-                  // Navigate to LoginPage
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                },
-              ),
-            ],
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.settings, color: Color(0xFF0A6338)),
+            title: Text('Settings'),
+            onTap: () {
+              // Navigate to settings page
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.logout, color: Colors.red),
+            title: Text('Logout'),
+            onTap: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.clear();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
           ),
         ],
       ),

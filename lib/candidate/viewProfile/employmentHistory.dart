@@ -1,32 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class EmploymentHistory extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final dynamic data;
 
   const EmploymentHistory({Key? key, required this.data}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    List<dynamic> employmentHistory;
+
+    if (data == null) {
+      employmentHistory = [];
+    } else if (data is List) {
+      employmentHistory = data;
+    } else if (data is Map && data.containsKey('employmentHistory')) {
+      employmentHistory = data['employmentHistory'] as List<dynamic>;
+    } else {
+      employmentHistory = [data];
+    }
+
+    if (employmentHistory.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Employment History'),
+          backgroundColor: Color(0xFF0A6338),
+        ),
+        body: Center(
+          child: Text('No employment history available.'),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile Information'),
+        title: Text('Employment History'),
         backgroundColor: Color(0xFF0A6338),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: ListView.builder(
+        itemCount: employmentHistory.length,
+        itemBuilder: (context, index) {
+          final job = employmentHistory[index];
+          return _buildJobCard(job);
+        },
+      ),
+    );
+  }
+
+  Widget _buildJobCard(dynamic job) {
+    return Card(
+      margin: EdgeInsets.all(16.0),
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildInfoItem(
-                'Name', data['cand_fname'] + ' ' + data['cand_lname']),
-            _buildInfoItem('Email', data['cand_email']),
-            _buildInfoItem('Phone', data['cand_contactno']),
-            _buildInfoItem('Address', data['cand_address']),
-            // Add more fields as needed
+                'Position', job['empH_positionName']?.toString() ?? 'N/A'),
+            _buildInfoItem(
+                'Company', job['empH_companyName']?.toString() ?? 'N/A'),
+            _buildInfoItem(
+                'Start Date', _formatDate(job['empH_startdate']?.toString())),
+            _buildInfoItem(
+                'End Date', _formatDate(job['empH_enddate']?.toString())),
           ],
         ),
       ),
     );
+  }
+
+  String _formatDate(String? dateString) {
+    if (dateString == null) return 'N/A';
+    try {
+      final date = DateTime.parse(dateString);
+      return DateFormat('MMMM d, y').format(date);
+    } catch (e) {
+      return dateString;
+    }
   }
 
   Widget _buildInfoItem(String label, String value) {

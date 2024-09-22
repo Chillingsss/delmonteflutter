@@ -1,8 +1,11 @@
+import 'package:delmonteflutter/candidate/dashboard.dart';
 import 'package:delmonteflutter/candidate/jobdetails.dart';
 import 'package:delmonteflutter/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,12 +18,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Del Monte Jobs',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
       home: const LandingPage(),
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 255, 255, 255)),
+        useMaterial3: true,
+      ),
     );
   }
 }
@@ -34,15 +38,35 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   List<dynamic> jobList = [];
+  String userName = '';
+  String userEmail = '';
 
   @override
   void initState() {
     super.initState();
     _fetchJobs();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => CandidateDashboard()),
+      );
+    }
+
+    setState(() {
+      userName = prefs.getString('user_name') ?? 'Candidate';
+      userEmail = prefs.getString('user_email') ?? 'No email';
+    });
   }
 
   Future<void> _fetchJobs() async {
-    final String url = "http://localhost/php-delmonte/api/users.php";
+    const String url = "http://localhost/php-delmonte/api/users.php";
 
     Map<String, String> headers = {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -148,48 +172,63 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0A6338),
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/images/delmonte.png',
-              height: 40,
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'Del Monte Jobs',
-              style: TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-            child: const Text(
-              'Login',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Active Jobs:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Image.asset(
+                    'assets/images/delmonte.png',
+                    height: 60,
+                  ),
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        'Explore Exciting Careers at Del Monte',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0A6338),
+                    ),
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Active Jobs:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF9E9E9E),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 itemCount: jobList.length,
                 itemBuilder: (context, index) {
                   return _buildApplicationItem(jobList[index]);

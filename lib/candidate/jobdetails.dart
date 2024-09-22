@@ -11,6 +11,7 @@ class JobDetails extends StatelessWidget {
   const JobDetails({Key? key, required this.jobDetails}) : super(key: key);
 
   Future<void> _applyForJob(BuildContext context) async {
+    const String url = "http://localhost/php-delmonte/api/users.php";
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('cand_id');
 
@@ -27,7 +28,6 @@ class JobDetails extends StatelessWidget {
       return;
     }
 
-    final String url = "http://localhost/php-delmonte/api/users.php";
     Map<String, String> headers = {
       "Content-Type": "application/x-www-form-urlencoded",
     };

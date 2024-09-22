@@ -1,4 +1,5 @@
 import 'package:delmonteflutter/candidate/jobdetails.dart';
+import 'package:delmonteflutter/candidate/viewProfile/viewProfile.dart';
 import 'package:delmonteflutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -43,7 +44,7 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
   }
 
   Future<void> _fetchJobs() async {
-    final String url = "http://localhost/php-delmonte/api/users.php";
+    const String url = "http://localhost/php-delmonte/api/users.php";
 
     Map<String, String> headers = {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -89,7 +90,6 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Custom header without AppBar
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -109,7 +109,7 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
                         ),
                       ),
                     ),
-                    Expanded(
+                    const Expanded(
                       child: Center(
                         child: Text(
                           "Explore Exciting Careers at Del Monte",
@@ -118,9 +118,19 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
                         ),
                       ),
                     ),
-                    CircleAvatar(
-                      child: Text(
-                        userName.isNotEmpty ? userName[0].toUpperCase() : '',
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ViewProfile(userId: userName),
+                          ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        child: Text(
+                          userName.isNotEmpty ? userName[0].toUpperCase() : '',
+                        ),
                       ),
                     ),
                   ],
@@ -128,7 +138,11 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
                 const SizedBox(height: 16),
                 const Text(
                   'Active Jobs:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF9E9E9E),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Expanded(

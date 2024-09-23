@@ -4,21 +4,21 @@ import 'package:intl/intl.dart';
 class EducationalBackground extends StatelessWidget {
   final dynamic data;
 
-  const EducationalBackground({Key? key, required this.data}) : super(key: key);
+  const EducationalBackground({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
     if (data == null || (data is List && data.isEmpty)) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'Educational Background',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Color(0xFF0A6338),
-          iconTheme: IconThemeData(color: Colors.white),
+          backgroundColor: const Color(0xFF0A6338),
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
-        body: Center(
+        body: const Center(
           child: Text('No educational background available.'),
         ),
       );
@@ -28,12 +28,12 @@ class EducationalBackground extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Educational Background',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFF0A6338),
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: const Color(0xFF0A6338),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView.builder(
         itemCount: educationalBackgrounds.length,
@@ -47,9 +47,9 @@ class EducationalBackground extends StatelessWidget {
 
   Widget _buildEducationCard(Map<String, dynamic> background) {
     return Card(
-      margin: EdgeInsets.all(16.0),
+      margin: const EdgeInsets.all(16.0),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -73,16 +73,16 @@ class EducationalBackground extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0A6338),
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             value,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ],
       ),

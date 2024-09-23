@@ -1,28 +1,55 @@
 import 'package:flutter/material.dart';
 
 class License extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final dynamic licenses;
 
-  const License({Key? key, required this.data}) : super(key: key);
+  const License({super.key, required this.licenses});
 
   @override
   Widget build(BuildContext context) {
+    List<dynamic> licenseList = [];
+    if (licenses is List) {
+      licenseList = licenses;
+    } else if (licenses is Map && licenses.containsKey('license')) {
+      licenseList = licenses['license'];
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile Information'),
-        backgroundColor: Color(0xFF0A6338),
+        title: const Text(
+          'License Information',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF0A6338),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: licenseList.isEmpty
+            ? const Center(child: Text('No license information available'))
+            : ListView.builder(
+                itemCount: licenseList.length,
+                itemBuilder: (context, index) {
+                  final license = licenseList[index];
+                  return _buildLicenseItem(license);
+                },
+              ),
+      ),
+    );
+  }
+
+  Widget _buildLicenseItem(dynamic license) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16.0),
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildInfoItem(
-                'Name', data['cand_fname'] + ' ' + data['cand_lname']),
-            _buildInfoItem('Email', data['cand_email']),
-            _buildInfoItem('Phone', data['cand_contactno']),
-            _buildInfoItem('Address', data['cand_address']),
-            // Add more fields as needed
+                'License', license['license_master_name']?.toString() ?? 'N/A'),
+            _buildInfoItem(
+                'Type', license['license_type_name']?.toString() ?? 'N/A'),
           ],
         ),
       ),
@@ -37,16 +64,15 @@ class License extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0A6338),
             ),
           ),
-          SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(fontSize: 18),
+            style: const TextStyle(fontSize: 18),
           ),
         ],
       ),

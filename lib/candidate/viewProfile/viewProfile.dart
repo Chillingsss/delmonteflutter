@@ -37,14 +37,6 @@ class _ViewProfileState extends State<ViewProfile> {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('cand_id');
 
-    if (userId == null) {
-      print('user_id is null');
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-
     Map<String, dynamic> jsonData = {
       'cand_id': userId,
     };
@@ -66,15 +58,11 @@ class _ViewProfileState extends State<ViewProfile> {
           isLoading = false;
         });
       } else {
-        print(
-            'Failed to load profile data. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
         setState(() {
           isLoading = false;
         });
       }
     } catch (e) {
-      print('Error fetching profile data: $e');
       setState(() {
         isLoading = false;
       });
@@ -86,111 +74,142 @@ class _ViewProfileState extends State<ViewProfile> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Profile',
-          style: TextStyle(color: Colors.white),
+          'Professional Profile',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF0A6338),
+        elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : profile.isEmpty
               ? const Center(child: Text('No profile data available'))
-              : ListView(
-                  children: [
-                    _buildProfileSection('Profile Information', Icons.person,
-                        () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProfileInformation(
-                            data: profile['candidateInformation'] ?? {},
-                          ),
-                        ),
-                      );
-                    }),
-                    _buildProfileSection('Educational Background', Icons.school,
-                        () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EducationalBackground(
-                            data: profile['educationalBackground'] ?? [],
-                          ),
-                        ),
-                      );
-                    }),
-                    _buildProfileSection('Employment History', Icons.work, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EmploymentHistory(
-                            data: profile['employmentHistory'] ?? {},
-                          ),
-                        ),
-                      );
-                    }),
-                    _buildProfileSection('Skills', Icons.psychology, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Skills(
-                            data: profile['skills'] ?? [],
-                          ),
-                        ),
-                      );
-                    }),
-                    _buildProfileSection('Training', Icons.book, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Training(
-                            data: profile['training'] ?? [],
-                          ),
-                        ),
-                      );
-                    }),
-                    _buildProfileSection('Knowledge', Icons.lightbulb, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Knowledge(
-                            knowledgeList: profile['knowledge'] ?? [],
-                          ),
-                        ),
-                      );
-                    }),
-                    _buildProfileSection('License', Icons.card_membership, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => License(
-                            data: profile['license'] ?? [],
-                          ),
-                        ),
-                      );
-                    }),
-                    _buildProfileSection('Resume', Icons.description, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Resume(
-                            data: profile['resume'] ?? [],
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
+              : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildHeader(),
+                      const SizedBox(height: 20),
+                      _buildProfileSection('Profile Information', Icons.person,
+                          () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ProfileInformation(
+                                    data: profile['candidateInformation'] ??
+                                        {})));
+                      }),
+                      _buildProfileSection(
+                          'Educational Background', Icons.school, () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => EducationalBackground(
+                                    data: profile['educationalBackground'] ??
+                                        [])));
+                      }),
+                      _buildProfileSection('Employment History', Icons.work,
+                          () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => EmploymentHistory(
+                                    data: profile['employmentHistory'] ?? {})));
+                      }),
+                      _buildProfileSection('Skills', Icons.psychology, () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    Skills(data: profile['skills'] ?? [])));
+                      }),
+                      _buildProfileSection('Training', Icons.book, () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    Training(data: profile['training'] ?? [])));
+                      }),
+                      _buildProfileSection('Knowledge', Icons.lightbulb, () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Knowledge(
+                                    knowledgeList:
+                                        profile['knowledge'] ?? [])));
+                      }),
+                      _buildProfileSection('License', Icons.card_membership,
+                          () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => License(
+                                    licenses: profile['license'] ?? [])));
+                      }),
+                      _buildProfileSection('Resume', Icons.description, () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    Resume(data: profile['resume'] ?? [])));
+                      }),
+                    ],
+                  ),
                 ),
     );
   }
 
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          const CircleAvatar(
+            radius: 50,
+            backgroundColor: Colors.white,
+            child: Icon(Icons.person, size: 60, color: Color(0xFF0A6338)),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '${profile['candidateInformation']?['cand_firstname'] ?? ''} ${profile['candidateInformation']?['cand_lastname'] ?? ''}',
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 5),
+        ],
+      ),
+    );
+  }
+
   Widget _buildProfileSection(String title, IconData icon, VoidCallback onTap) {
-    return ListTile(
-      leading: Icon(icon, color: const Color(0xFF0A6338)),
-      title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios),
-      onTap: onTap,
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0A6338).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: const Color(0xFF0A6338)),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+        onTap: onTap,
+      ),
     );
   }
 }

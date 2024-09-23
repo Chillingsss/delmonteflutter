@@ -3,42 +3,43 @@ import 'package:flutter/material.dart';
 class Skills extends StatelessWidget {
   final List<dynamic> data;
 
-  const Skills({Key? key, required this.data}) : super(key: key);
+  const Skills({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
-    print('Full data: $data'); // Print the entire data object
-    print('Type of data: ${data.runtimeType}');
-
     List<String> skills = _parseSkills(data);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Skills',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFF0A6338),
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: const Color(0xFF0A6338),
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Skills',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0A6338),
-              ),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(16.0),
+              sliver: skills.isNotEmpty
+                  ? SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => _buildSkillItem(skills[index]),
+                        childCount: skills.length,
+                      ),
+                    )
+                  : const SliverToBoxAdapter(
+                      child: Center(
+                        child: Text(
+                          'No skills found',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                      ),
+                    ),
             ),
-            SizedBox(height: 16),
-            if (skills.isNotEmpty)
-              ...skills.map((skill) => _buildSkillItem(skill))
-            else
-              Text('No skills found', style: TextStyle(fontSize: 18)),
           ],
         ),
       ),
@@ -53,17 +54,18 @@ class Skills extends StatelessWidget {
   }
 
   Widget _buildSkillItem(String skill) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        children: [
-          Icon(Icons.check_circle, color: Color(0xFF0A6338)),
-          SizedBox(width: 8),
-          Text(
-            skill,
-            style: TextStyle(fontSize: 18),
-          ),
-        ],
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 12.0),
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundColor: Color(0xFF0A6338),
+          child: Icon(Icons.star, color: Colors.white, size: 20),
+        ),
+        title: Text(
+          skill,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
       ),
     );
   }

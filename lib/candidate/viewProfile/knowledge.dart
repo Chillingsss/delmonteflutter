@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 class Knowledge extends StatelessWidget {
   final List<dynamic> knowledgeList;
 
-  const Knowledge({Key? key, required this.knowledgeList}) : super(key: key);
+  const Knowledge({super.key, required this.knowledgeList});
 
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        primaryColor: Color(0xFF0A6338),
-        appBarTheme: AppBarTheme(
+        primaryColor: const Color(0xFF0A6338),
+        appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF0A6338),
           foregroundColor: Colors.white,
           iconTheme: IconThemeData(color: Colors.white),
@@ -18,7 +18,7 @@ class Knowledge extends StatelessWidget {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'Knowledge & Expertise',
             style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
           ),
@@ -32,12 +32,12 @@ class Knowledge extends StatelessWidget {
               children: [
                 Text(
                   'Areas of Expertise',
-                  style: Theme.of(context).textTheme.headline6?.copyWith(
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0A6338),
+                        color: const Color(0xFF0A6338),
                       ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Expanded(
                   child: _buildKnowledgeList(context),
                 ),
@@ -71,16 +71,16 @@ class Knowledge extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.bolt,
-                color: Color(0xFF0A6338), size: 24), // More relevant icon
-            SizedBox(width: 16),
+            const Icon(Icons.bolt,
+                color: Color(0xFF0A6338), size: 24),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     knowledge['knowledge_name'],
-                    style: Theme.of(context).textTheme.subtitle1?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),

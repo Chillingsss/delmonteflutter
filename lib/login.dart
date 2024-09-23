@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:math';
 
 void main() {
   runApp(const MyApp());
@@ -37,8 +38,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _calculationController = TextEditingController();
   String userName = '';
   String userEmail = '';
+  int _num1 = 0;
+  int _num2 = 0;
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -61,9 +65,36 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _loadUserData();
+    _generateCalculation();
+  }
+
+  void _generateCalculation() {
+    setState(() {
+      _num1 = Random().nextInt(10) + 1; // 1 to 10
+      _num2 = Random().nextInt(10) + 1; // 1 to 10
+    });
   }
 
   Future<void> _login() async {
+    // Check if calculation is empty
+    if (_calculationController.text.isEmpty) {
+      NotificationService.showNotification(
+          context, 'Please answer the calculation',
+          isSuccess: false);
+      return;
+    }
+
+    // Verify calculation
+    int userAnswer = int.tryParse(_calculationController.text) ?? 0;
+    if (userAnswer != _num1 + _num2) {
+      NotificationService.showNotification(context, 'Incorrect answer',
+          isSuccess: false);
+      _generateCalculation(); // Generate a new calculation
+      _calculationController.clear(); // Clear the input field
+      return;
+    }
+
+    // Existing login logic
     String url = "http://localhost/php-delmonte/api/users.php";
 
     Map<String, String> headers = {
@@ -150,131 +181,234 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF014D30),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 50),
-                  Center(
-                    child: Image.asset(
-                      'assets/images/delmonte.png',
-                      height: 100,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'Welcome to',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 20,
-                    ),
-                  ),
-                  const Text(
-                    'DELMONTE',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  TextField(
-                    controller: _usernameController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      labelStyle: const TextStyle(color: Colors.white70),
-                      filled: true,
-                      fillColor: const Color(0xFF013720),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    const Color(0xFF014D30),
+                    const Color(0xFF013720),
+                  ],
+                ),
+              ),
+            ),
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 60),
+                    Center(
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Image.asset(
+                          'assets/images/delmonte.png',
+                          height: 80,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: const TextStyle(color: Colors.white70),
-                      filled: true,
-                      fillColor: const Color(0xFF013720),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
+                    const SizedBox(height: 40),
+                    Text(
+                      'Del Monte',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
+                    const SizedBox(height: 8),
+                    Text(
+                      'Sign in to your account',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        letterSpacing: 0.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 48),
+                    _buildTextField(
+                        _usernameController, 'Username', Icons.person_outline),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                        _passwordController, 'Password', Icons.lock_outline,
+                        isPassword: true),
+                    const SizedBox(height: 16),
+                    _buildCalculationField(),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
                       onPressed: _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF008C44),
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
+                        elevation: 0,
                       ),
                       child: const Text(
-                        'Login',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                        'SIGN IN',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Don't have an account?",
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Navigate to register page
-                        },
-                        child: const Text(
-                          'Create account here',
-                          style: TextStyle(color: Colors.white),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            // Navigate to register page
+                          },
+                          child: const Text(
+                            'Create Account',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // Navigate to forgot password page
-                    },
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: Colors.white70),
+                        TextButton(
+                          onPressed: () {
+                            // Navigate to forgot password page
+                          },
+                          child: const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                                color: Colors.white70,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 40,
-            left: 16,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => LandingPage()),
-                );
-              },
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => LandingPage()),
+                  );
+                },
+              ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon,
+      {bool isPassword = false}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.white70),
+          prefixIcon: Icon(icon, color: Colors.white70),
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: const Color(0xFF008C44), width: 2),
+            borderRadius: BorderRadius.circular(8),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalculationField() {
+    return Container(
+      height: 50, // Reduced height
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center, // Center the row contents
+        children: [
+          _buildNumberCard(_num1.toString()),
+          SizedBox(width: 8), // Reduced spacing
+          _buildOperatorCard('+'),
+          SizedBox(width: 8), // Reduced spacing
+          _buildNumberCard(_num2.toString()),
+          SizedBox(width: 8), // Reduced spacing
+          _buildOperatorCard('='),
+          SizedBox(width: 8), // Reduced spacing
+          _buildAnswerCard(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildNumberCard(String number) {
+    return Card(
+      color: Colors.white.withOpacity(0.1),
+      margin: EdgeInsets.zero,
+      child: Container(
+        width: 80, // Fixed width for number cards
+        height: 80, // Fixed height for number cards
+        alignment: Alignment.center,
+        child: Text(
+          number,
+          style:
+              TextStyle(color: Colors.white, fontSize: 18), // Reduced font size
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOperatorCard(String operator) {
+    return Text(
+      operator,
+      style: TextStyle(color: Colors.white, fontSize: 18), // Reduced font size
+    );
+  }
+
+  Widget _buildAnswerCard() {
+    return Card(
+      color: Colors.white.withOpacity(0.1),
+      margin: EdgeInsets.zero,
+      child: Container(
+        width: 80, // Fixed width for answer card
+        height: 80, // Fixed height for answer card
+        child: TextField(
+          controller: _calculationController,
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          style:
+              TextStyle(color: Colors.white, fontSize: 18), // Reduced font size
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: '?',
+            hintStyle: TextStyle(
+                color: Colors.white54, fontSize: 18), // Reduced font size
+            contentPadding: EdgeInsets.zero, // Remove internal padding
+          ),
+        ),
       ),
     );
   }

@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+// Remove this import
+// import 'package:photo_view/photo_view';
 
 class Training extends StatelessWidget {
   final List<dynamic> data;
 
-  const Training({Key? key, required this.data}) : super(key: key);
+  const Training({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Training Information',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFF0A6338),
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: const Color(0xFF0A6338),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -23,6 +25,7 @@ class Training extends StatelessWidget {
           itemBuilder: (context, index) {
             final training = data[index];
             return _buildTrainingItem(
+              context,
               training['perT_name'],
               training['training_image'],
             );
@@ -32,46 +35,51 @@ class Training extends StatelessWidget {
     );
   }
 
-  Widget _buildTrainingItem(String trainingName, String imageName) {
+  Widget _buildTrainingItem(
+      BuildContext context, String trainingName, String imageName) {
     return Card(
-      margin: EdgeInsets.only(bottom: 16.0),
+      margin: const EdgeInsets.only(bottom: 16.0),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            SizedBox(
-              width: 80,
-              height: 80,
-              child: Image.asset(
-                'assets/images/$imageName',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error, color: Colors.red, size: 30),
-                      Text(
-                        'Error loading image',
-                        style: TextStyle(fontSize: 10, color: Colors.red),
-                      ),
-                    ],
-                  );
-                },
+            GestureDetector(
+              onTap: () => _showFullScreenImage(context, imageName),
+              child: SizedBox(
+                width: 80,
+                height: 80,
+                child: Image.asset(
+                  'assets/images/$imageName',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error, color: Colors.red, size: 30),
+                        Text(
+                          'Error loading image',
+                          style: TextStyle(fontSize: 10, color: Colors.red),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     trainingName,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     'Image: $imageName',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),
@@ -82,5 +90,42 @@ class Training extends StatelessWidget {
     );
   }
 
-  // Remove the _checkImageAvailability method as it's no longer needed
+  void _showFullScreenImage(BuildContext context, String imageName) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            iconTheme: const IconThemeData(color: Colors.white),
+          ),
+          body: Container(
+            color: Colors.black,
+            child: Center(
+              child: InteractiveViewer(
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: Image.asset(
+                  'assets/images/$imageName',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error, color: Colors.red, size: 50),
+                        SizedBox(height: 16),
+                        Text(
+                          'Error loading image',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

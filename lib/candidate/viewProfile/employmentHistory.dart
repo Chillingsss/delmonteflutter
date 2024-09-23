@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 class EmploymentHistory extends StatelessWidget {
   final dynamic data;
 
-  const EmploymentHistory({Key? key, required this.data}) : super(key: key);
+  const EmploymentHistory({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +23,14 @@ class EmploymentHistory extends StatelessWidget {
     if (employmentHistory.isEmpty) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'Employment History',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Color(0xFF0A6338),
-          iconTheme: IconThemeData(color: Colors.white),
+          backgroundColor: const Color(0xFF0A6338),
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
-        body: Center(
+        body: const Center(
           child: Text('No employment history available.'),
         ),
       );
@@ -38,12 +38,12 @@ class EmploymentHistory extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Employment History',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFF0A6338),
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: const Color(0xFF0A6338),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView.builder(
         itemCount: employmentHistory.length,
@@ -57,9 +57,9 @@ class EmploymentHistory extends StatelessWidget {
 
   Widget _buildJobCard(dynamic job) {
     return Card(
-      margin: EdgeInsets.all(16.0),
+      margin: const EdgeInsets.all(16.0),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -95,16 +95,16 @@ class EmploymentHistory extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0A6338),
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(fontSize: 18),
+            style: const TextStyle(fontSize: 18),
           ),
         ],
       ),

@@ -23,8 +23,12 @@ class EmploymentHistory extends StatelessWidget {
     if (employmentHistory.isEmpty) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Employment History'),
+          title: Text(
+            'Employment History',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Color(0xFF0A6338),
+          iconTheme: IconThemeData(color: Colors.white),
         ),
         body: Center(
           child: Text('No employment history available.'),
@@ -34,8 +38,12 @@ class EmploymentHistory extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Employment History'),
+        title: Text(
+          'Employment History',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Color(0xFF0A6338),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: ListView.builder(
         itemCount: employmentHistory.length,

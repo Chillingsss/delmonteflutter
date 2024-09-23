@@ -27,8 +27,12 @@ class ProfileInformation extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile Information'),
+        title: Text(
+          'Profile Information',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Color(0xFF0A6338),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

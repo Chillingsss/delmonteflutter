@@ -11,8 +11,12 @@ class EducationalBackground extends StatelessWidget {
     if (data == null || (data is List && data.isEmpty)) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Educational Background'),
+          title: Text(
+            'Educational Background',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Color(0xFF0A6338),
+          iconTheme: IconThemeData(color: Colors.white),
         ),
         body: Center(
           child: Text('No educational background available.'),
@@ -24,8 +28,12 @@ class EducationalBackground extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Educational Background'),
+        title: Text(
+          'Educational Background',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Color(0xFF0A6338),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: ListView.builder(
         itemCount: educationalBackgrounds.length,

@@ -118,18 +118,24 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
                         ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ViewProfile(userId: userName),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ViewProfile(userId: userName),
+                            ),
+                          );
+                        },
+                        child: CircleAvatar(
+                          child: Text(
+                            userName.isNotEmpty
+                                ? userName[0].toUpperCase()
+                                : '',
                           ),
-                        );
-                      },
-                      child: CircleAvatar(
-                        child: Text(
-                          userName.isNotEmpty ? userName[0].toUpperCase() : '',
                         ),
                       ),
                     ),

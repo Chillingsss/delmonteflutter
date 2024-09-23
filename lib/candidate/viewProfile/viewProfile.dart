@@ -85,8 +85,12 @@ class _ViewProfileState extends State<ViewProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text(
+          'Profile',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF0A6338),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -151,7 +155,7 @@ class _ViewProfileState extends State<ViewProfile> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => Knowledge(
-                            data: profile['knowledge'] ?? [],
+                            knowledgeList: profile['knowledge'] ?? [],
                           ),
                         ),
                       );

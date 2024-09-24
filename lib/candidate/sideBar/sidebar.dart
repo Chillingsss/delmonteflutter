@@ -119,7 +119,7 @@ class _SideBarState extends State<SideBar> {
                         shape: BoxShape.circle,
                         image: DecorationImage(
                           image: AssetImage('assets/images/delmonte.png'),
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                         ),
                         color: Colors.white,
                       ),

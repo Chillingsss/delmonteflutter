@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-// Remove this import
-// import 'package:photo_view/photo_view';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
 class Training extends StatelessWidget {
   final List<dynamic> data;
@@ -37,31 +40,41 @@ class Training extends StatelessWidget {
 
   Widget _buildTrainingItem(
       BuildContext context, String trainingName, String imageName) {
+    final imageUrl =
+        'http://192.168.237.130/php-delmonte/api/uploads/$imageName';
+
+    print('Loading image from URL: $imageUrl'); // Add this debug print
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GestureDetector(
               onTap: () => _showFullScreenImage(context, imageName),
               child: SizedBox(
                 width: 80,
                 height: 80,
-                child: Image.asset(
-                  'assets/images/$imageName',
+                child: Image.network(
+                  imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error, color: Colors.red, size: 30),
-                        Text(
-                          'Error loading image',
-                          style: TextStyle(fontSize: 10, color: Colors.red),
-                        ),
-                      ],
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
                     );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    print('Error loading image: $error');
+                    print('Stack trace: $stackTrace'); // Add this debug print
+                    return Icon(Icons.error, color: Colors.red, size: 30);
                   },
                 ),
               ),
@@ -91,6 +104,12 @@ class Training extends StatelessWidget {
   }
 
   void _showFullScreenImage(BuildContext context, String imageName) {
+    final imageUrl =
+        'http://192.168.237.130/php-delmonte/api/uploads/$imageName'; // Update this URL
+
+    print(
+        'Loading full-screen image from URL: $imageUrl'); // Add this debug print
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => Scaffold(
@@ -104,18 +123,31 @@ class Training extends StatelessWidget {
               child: InteractiveViewer(
                 minScale: 0.5,
                 maxScale: 4.0,
-                child: Image.asset(
-                  'assets/images/$imageName',
+                child: Image.network(
+                  imageUrl,
                   fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
                   errorBuilder: (context, error, stackTrace) {
-                    return const Column(
+                    print('Error loading full-screen image: $error');
+                    print('Stack trace: $stackTrace'); // Add this debug print
+                    return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.error, color: Colors.red, size: 50),
                         SizedBox(height: 16),
                         Text(
                           'Error loading image',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          style: TextStyle(color: Colors.white),
                         ),
                       ],
                     );

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
   String userEmail = '';
   int _num1 = 0;
   int _num2 = 0;
+  bool _isCalculationCorrect = true;
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -76,6 +78,28 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
+    if (_usernameController.text.isEmpty && _passwordController.text.isEmpty) {
+      NotificationService.showNotification(
+          context, 'Please enter your username and password',
+          isSuccess: false);
+      return;
+    }
+
+    if (_usernameController.text.isEmpty) {
+      NotificationService.showNotification(
+          context, 'Please enter your username',
+          isSuccess: false);
+      return;
+    }
+
+    // Check if password is empty
+    if (_passwordController.text.isEmpty) {
+      NotificationService.showNotification(
+          context, 'Please enter your password',
+          isSuccess: false);
+      return;
+    }
+
     // Check if calculation is empty
     if (_calculationController.text.isEmpty) {
       NotificationService.showNotification(
@@ -177,6 +201,13 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _validateCalculation(String value) {
+    int? userAnswer = int.tryParse(value);
+    setState(() {
+      _isCalculationCorrect = userAnswer == (_num1 + _num2);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,6 +244,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Image.asset(
                           'assets/images/delmonte.png',
                           height: 80,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
@@ -392,6 +424,13 @@ class _LoginPageState extends State<LoginPage> {
     return Card(
       color: Colors.white.withOpacity(0.1),
       margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: _isCalculationCorrect ? Colors.green : Colors.red,
+          width: 2,
+        ),
+      ),
       child: Container(
         width: 80, // Fixed width for answer card
         height: 80, // Fixed height for answer card
@@ -399,15 +438,17 @@ class _LoginPageState extends State<LoginPage> {
           controller: _calculationController,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
-          style:
-              TextStyle(color: Colors.white, fontSize: 18), // Reduced font size
+          style: TextStyle(color: Colors.white, fontSize: 18),
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: '?',
-            hintStyle: TextStyle(
-                color: Colors.white54, fontSize: 18), // Reduced font size
-            contentPadding: EdgeInsets.zero, // Remove internal padding
+            hintStyle: TextStyle(color: Colors.white54, fontSize: 18),
+            contentPadding: EdgeInsets.zero,
           ),
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          onChanged: (value) {
+            _validateCalculation(value);
+          },
         ),
       ),
     );

@@ -104,7 +104,7 @@ class _CandidateDashboardState extends State<CandidateDashboard> {
                           height: 80,
                           child: Image.asset(
                             'assets/images/delmonte.png',
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),

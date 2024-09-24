@@ -100,13 +100,17 @@ class _ViewProfileState extends State<ViewProfile> {
                                         {})));
                       }),
                       _buildProfileSection(
-                          'Educational Background', Icons.school, () {
+                          'Educational Background', Icons.school, () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        final candId =
+                            prefs.getInt('cand_id')?.toString() ?? '';
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => EducationalBackground(
-                                    data: profile['educationalBackground'] ??
-                                        [])));
+                                    data:
+                                        profile['educationalBackground'] ?? [],
+                                    candId: int.parse(candId))));
                       }),
                       _buildProfileSection('Employment History', Icons.work,
                           () {

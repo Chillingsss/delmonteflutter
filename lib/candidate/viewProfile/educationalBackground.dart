@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'update_educbac.dart'; // Import the update page
 
 class EducationalBackground extends StatelessWidget {
   final dynamic data;
+  final int candId; // Add candId as a parameter
 
-  const EducationalBackground({super.key, required this.data});
+  const EducationalBackground(
+      {super.key,
+      required this.data,
+      required this.candId}); // Update constructor
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +45,14 @@ class EducationalBackground extends StatelessWidget {
         itemCount: educationalBackgrounds.length,
         itemBuilder: (context, index) {
           final background = educationalBackgrounds[index];
-          return _buildEducationCard(background);
+          return _buildEducationCard(context, background);
         },
       ),
     );
   }
 
-  Widget _buildEducationCard(Map<String, dynamic> background) {
+  Widget _buildEducationCard(
+      BuildContext context, Map<String, dynamic> background) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
       child: Padding(
@@ -54,7 +60,39 @@ class EducationalBackground extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoItem('Course', background['courses_name']),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Course',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0A6338),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UpdateEducBacPage(
+                          data: background,
+                          // Pass educ_back_id
+                          candId: candId.toString(), // Pass cand_id as a string
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              background['courses_name'],
+              style: const TextStyle(fontSize: 16),
+            ),
             const SizedBox(height: 12.0),
             _buildInfoItem('Institution', background['institution_name']),
             const SizedBox(height: 12.0),

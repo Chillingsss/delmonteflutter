@@ -93,6 +93,7 @@ class _UpdateEducBacPageState extends State<UpdateEducBacPage> {
         'candidateId': widget.candId,
         'educationalBackground': [
           {
+            'educ_id': widget.data['educ_id'],
             'institutionId':
                 selectedInstitution ?? widget.data['institution_id'],
             'courseId': selectedCourse ?? widget.data['courses_id'],

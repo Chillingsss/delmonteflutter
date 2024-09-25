@@ -1,19 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'update_educbac.dart'; // Import the update page
+import 'update_educbac.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-class EducationalBackground extends StatelessWidget {
+class EducationalBackground extends StatefulWidget {
   final dynamic data;
-  final int candId; // Add candId as a parameter
+  final int candId;
 
-  const EducationalBackground(
-      {super.key,
-      required this.data,
-      required this.candId}); // Update constructor
+  const EducationalBackground({
+    Key? key,
+    required this.data,
+    required this.candId,
+  }) : super(key: key);
+
+  @override
+  _EducationalBackgroundState createState() => _EducationalBackgroundState();
+}
+
+class _EducationalBackgroundState extends State<EducationalBackground> {
+  Map<String, dynamic> profile = {};
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    const String url = "http://localhost/php-delmonte/api/users.php";
+
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('cand_id');
+
+    Map<String, dynamic> jsonData = {
+      'cand_id': userId,
+    };
+
+    Map<String, dynamic> body = {
+      'operation': 'getCandidateProfile',
+      'json': json.encode(jsonData),
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          profile = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (data == null || (data is List && data.isEmpty)) {
+    if (widget.data == null || (widget.data is List && widget.data.isEmpty)) {
       return Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -29,7 +85,7 @@ class EducationalBackground extends StatelessWidget {
       );
     }
 
-    final List<dynamic> educationalBackgrounds = data is List ? data : [data];
+    final List<dynamic> educationalBackgrounds = widget.data is List ? widget.data : [widget.data];
 
     return Scaffold(
       appBar: AppBar(
@@ -80,7 +136,7 @@ class EducationalBackground extends StatelessWidget {
                         builder: (context) => UpdateEducBacPage(
                           data: background,
                           // Pass educ_back_id
-                          candId: candId.toString(), // Pass cand_id as a string
+                          candId: widget.candId.toString(), 
                         ),
                       ),
                     );

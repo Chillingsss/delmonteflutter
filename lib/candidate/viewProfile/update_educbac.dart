@@ -40,48 +40,9 @@ class _UpdateEducBacPageState extends State<UpdateEducBacPage> {
   @override
   void initState() {
     super.initState();
-    _fetchProfileData();
     fetchData();
     _dateController.text =
         widget.data['courseDateGraduated'] ?? '2023-10-01'; // Example date
-  }
-
-  Future<void> _fetchProfileData() async {
-    const String url = "http://localhost/php-delmonte/api/users.php";
-
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('cand_id');
-
-    Map<String, dynamic> jsonData = {
-      'cand_id': userId,
-    };
-
-    Map<String, dynamic> body = {
-      'operation': 'getCandidateProfile',
-      'json': json.encode(jsonData),
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        body: body,
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          profile = json.decode(response.body);
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
 
   Future<void> fetchData() async {
@@ -152,13 +113,16 @@ class _UpdateEducBacPageState extends State<UpdateEducBacPage> {
       );
 
       if (response.body == '1') {
-        // Success message
         NotificationService.showNotification(
             context, 'Educational background updated successfully!',
             isSuccess: true);
-        // Create an instance of ViewProfile and call _fetchProfileData
-        await _fetchProfileData();
-        Navigator.pop(context);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ViewProfile(userId: widget.candId.toString())),
+        );
       } else {
         // Failure message
         NotificationService.showNotification(

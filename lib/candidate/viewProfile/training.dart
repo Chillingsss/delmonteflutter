@@ -40,10 +40,9 @@ class Training extends StatelessWidget {
 
   Widget _buildTrainingItem(
       BuildContext context, String trainingName, String imageName) {
-    final imageUrl =
-        'http://192.168.237.130/php-delmonte/api/uploads/$imageName';
+    final imageUrl = 'http://localhost/php-delmonte/api/uploads/$imageName';
 
-    print('Loading image from URL: $imageUrl'); // Add this debug print
+    print('Loading image from URL: $imageUrl');
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -60,6 +59,8 @@ class Training extends StatelessWidget {
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
+                  height: 20,
+                  width: 20,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
                     return Center(
@@ -104,8 +105,7 @@ class Training extends StatelessWidget {
   }
 
   void _showFullScreenImage(BuildContext context, String imageName) {
-    final imageUrl =
-        'http://192.168.237.130/php-delmonte/api/uploads/$imageName'; // Update this URL
+    final imageUrl = 'http://localhost/php-delmonte/api/uploads/$imageName';
 
     print(
         'Loading full-screen image from URL: $imageUrl'); // Add this debug print

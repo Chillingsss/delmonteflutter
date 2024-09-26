@@ -25,6 +25,7 @@ class EducationalBackground extends StatefulWidget {
 class _EducationalBackgroundState extends State<EducationalBackground> {
   late List<dynamic> educationalBackgrounds;
   int? selectedIndex;
+  bool isAddingNew = false;
 
   // Update form variables
   List<dynamic> institutions = [];
@@ -40,7 +41,11 @@ class _EducationalBackgroundState extends State<EducationalBackground> {
   @override
   void initState() {
     super.initState();
-    educationalBackgrounds = widget.data is List ? widget.data : [widget.data];
+    setState(() {
+      educationalBackgrounds =
+          widget.data is List ? widget.data : [widget.data];
+    });
+
     fetchUpdateFormData();
   }
 
@@ -82,20 +87,20 @@ class _EducationalBackgroundState extends State<EducationalBackground> {
   Future<void> updateEducationalBackground(
       Map<String, dynamic> background) async {
     try {
-      final url = 'http://localhost/php-delmonte/api/users.php';
+      const url = 'http://localhost/php-delmonte/api/users.php';
 
       final updatedData = {
         'candidateId': widget.candId,
         'educationalBackground': [
           {
             'educId': background['educ_back_id'],
-            'institutionId': selectedInstitution,
-            'courseId': selectedCourse,
+            'institutionId':
+                selectedInstitution ?? background['institution_id'],
+            'courseId': selectedCourse ?? background['courses_id'],
             'courseDateGraduated': _dateController.text,
           }
         ],
       };
-      print('Sending updated data: $updatedData');
 
       final formData = {
         'operation': 'updateEducationalBackground',
@@ -112,17 +117,72 @@ class _EducationalBackgroundState extends State<EducationalBackground> {
             context, 'Educational background updated successfully!',
             isSuccess: true);
 
+        // Call the refreshProfileData method from the parent widget
         await widget.refreshProfileData();
+
+        // Update the local state with the new data
+        // setState(() {
+        //   final updatedBackground = {
+        //     'educ_back_id': background['educ_back_id'],
+        //     'institution_id':
+        //         selectedInstitution ?? background['institution_id'],
+        //     'courses_id': selectedCourse ?? background['courses_id'],
+        //     'educ_dategraduate': _dateController.text,
+        //     'institution_name': institutions.firstWhere(
+        //       (inst) =>
+        //           inst['institution_id'].toString() ==
+        //           (selectedInstitution ?? background['institution_id']),
+        //       orElse: () => {'institution_name': 'Unknown'},
+        //     )['institution_name'],
+        //     'courses_name': courses.firstWhere(
+        //       (course) =>
+        //           course['courses_id'].toString() ==
+        //           (selectedCourse ?? background['courses_id']),
+        //       orElse: () => {'courses_name': 'Unknown'},
+        //     )['courses_name'],
+        //     'course_categoryName':
+        //         background['course_categoryName'] ?? 'Unknown',
+        //   };
+
+        //   if (background['educ_back_id'] == null) {
+        //     educationalBackgrounds.add(updatedBackground);
+        //   } else {
+        //     int indexToUpdate = educationalBackgrounds.indexWhere((element) =>
+        //         element['educ_back_id'] == background['educ_back_id']);
+
+        //     if (indexToUpdate != -1) {
+        //       educationalBackgrounds[indexToUpdate] = updatedBackground;
+        //     }
+        //   }
+        //   // Update the index of the added or updated background
+        //   if (background['educ_back_id'] == null) {
+        //     selectedIndex = educationalBackgrounds.length - 1;
+        //   } else {
+        //     selectedIndex = educationalBackgrounds.indexWhere((element) =>
+        //         element['educ_back_id'] == background['educ_back_id']);
+        //   }
+
+        //   selectedIndex = null;
+        //   selectedInstitution = null;
+        //   selectedCourse = null;
+        //   selectedCourseCategory = null;
+        //   isAddingNew = false;
+        // });
+
         setState(() {
+          educationalBackgrounds =
+              widget.data is List ? widget.data : [widget.data];
+
           selectedIndex = null;
           selectedInstitution = null;
           selectedCourse = null;
+          selectedCourseCategory = null;
+          isAddingNew = false;
         });
       } else {
         throw Exception('Server returned: ${response.body}');
       }
     } catch (error) {
-      print('Error updating educational background: $error');
       NotificationService.showNotification(
           context, 'Error updating educational background: $error',
           isSuccess: false);
@@ -244,22 +304,6 @@ class _EducationalBackgroundState extends State<EducationalBackground> {
 
   @override
   Widget build(BuildContext context) {
-    if (educationalBackgrounds.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Educational Background',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: const Color(0xFF0A6338),
-          iconTheme: const IconThemeData(color: Colors.white),
-        ),
-        body: const Center(
-          child: Text('No educational background available.'),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -274,6 +318,26 @@ class _EducationalBackgroundState extends State<EducationalBackground> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isAddingNew = true;
+                    selectedIndex = null;
+                    selectedInstitution = null;
+                    selectedCourse = null;
+                    selectedCourseCategory = null;
+                    _dateController.text =
+                        DateTime.now().toIso8601String().split('T').first;
+                  });
+                },
+                child: const Text('Add Educational Background'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0A6338),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              if (isAddingNew) _buildAddForm(),
               for (int index = 0;
                   index < educationalBackgrounds.length;
                   index++)
@@ -284,6 +348,149 @@ class _EducationalBackgroundState extends State<EducationalBackground> {
                       context, educationalBackgrounds[index], index),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddForm() {
+    return Card(
+      margin: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownSearch<String>(
+              popupProps: PopupProps.menu(
+                showSearchBox: true,
+              ),
+              items: institutions.map<String>((dynamic value) {
+                return value['institution_name'] ?? 'Unknown';
+              }).toList(),
+              dropdownDecoratorProps: DropDownDecoratorProps(
+                dropdownSearchDecoration: InputDecoration(
+                  labelText: "Select Institution",
+                ),
+              ),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedInstitution = institutions
+                      .firstWhere((element) =>
+                          element['institution_name'] ==
+                          newValue)['institution_id']
+                      .toString();
+                });
+              },
+              selectedItem: null,
+            ),
+            const SizedBox(height: 16.0),
+            DropdownSearch<String>(
+              popupProps: PopupProps.menu(
+                showSearchBox: true,
+              ),
+              items: courses.map<String>((dynamic value) {
+                return value['courses_name'] ?? 'Unknown';
+              }).toList(),
+              dropdownDecoratorProps: DropDownDecoratorProps(
+                dropdownSearchDecoration: InputDecoration(
+                  labelText: "Select Course",
+                ),
+              ),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedCourse = courses
+                      .firstWhere((element) =>
+                          element['courses_name'] == newValue)['courses_id']
+                      .toString();
+                });
+              },
+              selectedItem: null,
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _dateController,
+              decoration: InputDecoration(
+                labelText: "Course Date Graduated",
+                hintText: "YYYY-MM-DD",
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context),
+                ),
+              ),
+              readOnly: true,
+            ),
+            const SizedBox(height: 32.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    if (selectedInstitution != null &&
+                        selectedCourse != null &&
+                        _dateController.text.isNotEmpty) {
+                      // Ensure the date is in the correct format
+                      final formattedDate = DateFormat('yyyy-MM-dd').format(
+                          DateFormat('yyyy-MM-dd').parse(_dateController.text));
+
+                      // Create a new background entry
+                      final newBackground = {
+                        'educ_back_id': null, // Set to null for new entries
+                        'institution_id': selectedInstitution,
+                        'courses_id': selectedCourse,
+                        'educ_dategraduate': formattedDate,
+                        'institution_name': institutions.firstWhere(
+                          (inst) =>
+                              inst['institution_id'].toString() ==
+                              selectedInstitution,
+                          orElse: () => {'institution_name': 'Unknown'},
+                        )['institution_name'],
+                        'courses_name': courses.firstWhere(
+                          (course) =>
+                              course['courses_id'].toString() == selectedCourse,
+                          orElse: () => {'courses_name': 'Unknown'},
+                        )['courses_name'],
+                        'course_categoryName': 'Unknown',
+                      };
+
+                      // Update server first
+                      await updateEducationalBackground(newBackground);
+
+                      // Refresh data from server
+                      await widget.refreshProfileData();
+                      await fetchUpdateFormData();
+
+                      // Reset form
+                      setState(() {
+                        isAddingNew = false;
+                        selectedInstitution = null;
+                        selectedCourse = null;
+                        _dateController.clear();
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please complete all fields'),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('Add'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      isAddingNew = false;
+                      selectedInstitution = null;
+                      selectedCourse = null;
+                      _dateController.clear();
+                    });
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

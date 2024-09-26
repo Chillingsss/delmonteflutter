@@ -56,6 +56,8 @@ class _ViewProfileState extends State<ViewProfile> {
         body: body,
       );
 
+      // print("Response ni fetch profile data: ${response.body}");
+
       if (response.statusCode == 200) {
         final fetchedProfile = json.decode(response.body);
         setState(() {
@@ -111,6 +113,7 @@ class _ViewProfileState extends State<ViewProfile> {
                           candId: int.parse(candId),
                           refreshProfileData: () async {
                             await _fetchProfileData();
+                            setState(() {}); // Add this line
                           },
                         ),
                       ),

@@ -237,10 +237,6 @@ class _LoginPageState extends State<LoginPage> {
                     Center(
                       child: Container(
                         padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
                         child: Image.asset(
                           'assets/images/delmonte.png',
                           height: 80,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:delmonteflutter/candidate/exam/exam.dart';
 import 'package:delmonteflutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -74,10 +75,14 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
               .map((job) => {
                     'title': job['jobM_title'] as String? ?? 'Unknown Title',
                     'status': job['status_name'] as String? ?? 'Unknown Status',
+                    'jobId': job['jobM_id'] as int? ?? 0,
+                    'appId': job['app_id'] as int? ?? 0,
+
                   })
               .toList();
           isLoading = false;
         });
+        print(appliedJobs);
 
         if (appliedJobs.isEmpty) {
           // print('No applied jobs found');
@@ -103,6 +108,9 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
         return Icons.cancel;
       case 'process':
         return Icons.hourglass_bottom;
+      case 'interview':
+        return Icons.calendar_month;
+
       default:
         return Icons.info;
     }
@@ -237,7 +245,27 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
       ),
       trailing: Icon(Icons.chevron_right, color: Color(0xFF0A6338)),
       onTap: () {
-        // Navigate to job details
+        if (job['status'] == 'Exam') {
+          String jobMId = job['jobId'].toString();
+          String appId = job['appId'].toString();
+
+          String jobTitle =
+              job['title'] ?? 'Unknown Title'; // Default value if null
+
+          // Navigate to exam.dart and pass the job details
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ExamPage(
+                jobId: jobMId,
+                jobTitle: jobTitle,
+                appId: appId,
+              ),
+            ),
+          );
+        } else {
+          // Handle other statuses if needed
+        }
       },
     );
   }
@@ -262,6 +290,8 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
             );
           },
         );
+      case 'interview':
+        return Icon(iconData, size: 16, color: color);
       default:
         return Icon(iconData, size: 16, color: color);
     }
